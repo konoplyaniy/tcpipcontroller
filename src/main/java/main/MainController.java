@@ -53,14 +53,33 @@ public class MainController {
     }
 
     public static void main(String[] args) throws Exception {
-        MainController clientSocket = new MainController();
-        clientSocket.setServerPort(6789);
-        clientSocket.setServerIp("localhost");
-        System.out.println(clientSocket.getCurrentVolume());
-
-        System.out.println("Trying to change volume to 20");
-        clientSocket.changeVolume(20);
-        System.out.println("Trying to change volume to 40");
-        clientSocket.changeVolume(40);
+        BufferedReader br = null;
+        try {
+            br = new BufferedReader(new InputStreamReader(System.in));
+            while (true) {
+                System.out.print("Enter new volume value: ");
+                String input = br.readLine();
+                if ("q".equals(input)) {
+                    System.out.println("Exit!");
+                    System.exit(0);
+                } else {
+                    MainController clientSocket = new MainController();
+                    clientSocket.setServerPort(6789);
+                    clientSocket.setServerIp("localhost");
+                    System.out.println("Trying to change volume to " + input);
+                    clientSocket.changeVolume(Integer.parseInt(input));
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }
