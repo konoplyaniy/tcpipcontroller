@@ -5,6 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.net.SocketException;
 
 
 public class MainController {
@@ -41,18 +42,17 @@ public class MainController {
 
     private void changeVolume(int volume) throws IOException {
         String newVolumeValue;
-        String serverResponse;
         Socket clientSocket = new Socket(getServerIp(), getServerPort());
         DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
-        BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         newVolumeValue = volume + "";
         outToServer.writeBytes(newVolumeValue + '\n');
-        serverResponse = inFromServer.readLine();
-        System.out.println("FROM SERVER: " + serverResponse);
         clientSocket.close();
     }
 
     public static void main(String[] args) throws Exception {
+        MainController mainController = new MainController();
+        mainController.setServerPort(6789);
+        mainController.setServerIp("localhost");
         BufferedReader br = null;
         try {
             br = new BufferedReader(new InputStreamReader(System.in));
@@ -63,11 +63,13 @@ public class MainController {
                     System.out.println("Exit!");
                     System.exit(0);
                 } else {
-                    MainController clientSocket = new MainController();
-                    clientSocket.setServerPort(6789);
-                    clientSocket.setServerIp("localhost");
                     System.out.println("Trying to change volume to " + input);
-                    clientSocket.changeVolume(Integer.parseInt(input));
+
+                    try {
+                        mainController.changeVolume(Integer.parseInt(input));
+                    } catch (SocketException e) {
+                        System.out.println("SocketException!");
+                    }
                 }
             }
         } catch (IOException e) {
